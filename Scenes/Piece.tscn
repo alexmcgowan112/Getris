@@ -8,9 +8,10 @@ friction = 0.7
 [node name="Piece" type="RigidBody2D"]
 mode = 3
 physics_material_override = SubResource( 1 )
-contacts_reported = 1
-contact_monitor = true
+sleeping = true
 script = ExtResource( 1 )
+fall_speed = 2.0
+drop_speed = 5.0
 
 [node name="Collider" type="CollisionPolygon2D" parent="."]
 scale = Vector2( 0.5, 0.5 )
@@ -21,5 +22,3 @@ scale = Vector2( 0.5, 0.5 )
 color = Color( 0.568627, 0.568627, 0.568627, 1 )
 invert_border = 10.0
 polygon = PoolVector2Array( -64, 64, -64, -64, 64, -64, 64, 64 )
-
-[connection signal="body_entered" from="." to="." method="collide"]
