@@ -7,6 +7,8 @@ var nextSequence : Array
 
 var pieces : Array
 
+var pieceScene = preload("res://Scenes/Piece.tscn")
+
 func _ready():
 	random.randomize()
 
@@ -14,10 +16,9 @@ func _ready():
 		pieceSequence.append(random.randi_range(0,6))
 
 func next_piece():
-	print("next")
-	var piece = Piece.new(random.randi_range(0,6))
-	get_node("/root/MainScene/Pieces").add_child(piece)
-	piece.global_transform.origin = Vector2(0,-32)
+	var piece = pieceScene.instance(random.randi_range(0,6))
+	get_node("Pieces").add_child(piece)
+	piece.global_transform.origin = Vector2(0,-608)
 	pieces.append(piece)
 
 	# if numPieces % 7 == 6:
