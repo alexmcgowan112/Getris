@@ -15,9 +15,11 @@ linear_velocity = Vector2( 0, 500 )
 script = ExtResource( 1 )
 
 [node name="Collider" type="CollisionPolygon2D" parent="."]
+scale = Vector2( 0.99, 0.99 )
 polygon = PoolVector2Array( -32, -32, 32, -32, 32, 32, -32, 32 )
 
 [node name="Polygon" type="Polygon2D" parent="."]
+scale = Vector2( 0.99, 0.99 )
 color = Color( 0.568627, 0.568627, 0.568627, 1 )
 invert_border = 10.0
 polygon = PoolVector2Array( -32, 32, -32, -32, 32, -32, 32, 32 )

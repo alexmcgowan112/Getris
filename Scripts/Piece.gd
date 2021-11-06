@@ -1,8 +1,9 @@
 extends RigidBody2D
 
 
-var random = RandomNumberGenerator.new()
+signal piece_placed
 
+var random = RandomNumberGenerator.new()
 
 var polygon
 onready var sprite : Node = get_node("Polygon")
@@ -25,11 +26,12 @@ func _ready():
 		collider.set_polygon(polygon)
 	linear_velocity.y = fall_speed
 	gravity_scale = 0
+	add_to_group("Pieces")
 
 func _init(shape = -1):
 	random.randomize()
 	if shape == -1:
-		shape = random.randi_range(5,6)
+		shape = random.randi_range(0,6)
 
 	var vertices
 	match shape:
@@ -71,10 +73,10 @@ func _init(shape = -1):
 		collider.set_polygon(polygon)
 
 
-func _physics_process(_delta):
+func _integrate_forces(state):
 	if falling:
-		#if Input.is_action_just_pressed("drop"):
-			#movement.y = 600
+		if Input.is_action_just_pressed("drop"):
+			drop(state)
 		if Input.is_action_pressed("down"):
 			if linear_velocity.y != drop_speed:
 				linear_velocity.y = drop_speed
@@ -84,43 +86,60 @@ func _physics_process(_delta):
 
 		
 		if moveDirection == 0:
-			if Input.is_action_pressed("left"):
+			if Input.is_action_just_pressed("shove_left"):
+				moveDirection = -2
+			elif Input.is_action_pressed("left"):
 				moveDirection = -1
+			if Input.is_action_just_pressed("shove_right"):
+				moveDirection = 2
+			elif Input.is_action_pressed("right"):
+				moveDirection = 1	
+			if moveDirection != 0:
 				frameNumMove = -3
-			if Input.is_action_pressed("right"):
-				moveDirection = 1
-				frameNumMove = -3
-				
-		else:
-			if moveDirection == -1:
-				linear_velocity.x = -(4-abs(frameNumMove))*64.11
-			else:
-				linear_velocity.x = (4-abs(frameNumMove))*64.11
+		elif frameNumMove < 4:
+			var moveAmount : int = (4-abs(frameNumMove)) * moveDirection
+			if test_motion(Vector2(moveAmount,0),false):
+				while test_motion(Vector2(moveAmount,0),false):
+					moveAmount -= moveAmount/abs(moveAmount)
+				collide(null)
+			state.transform.origin.x += moveAmount
 			frameNumMove+=1
-			if frameNumMove >= 4:
+		else:
+			if frameNumMove >= 8:
 				moveDirection = 0
-				linear_velocity.x = 0
-				position.x = round(position.x)
+			frameNumMove += 1
 
 		if spinDirection == 0:
 			if Input.is_action_pressed("rotate_left"):
 				spinDirection = -1
-				frameNumSpin = -9
+				frameNumSpin = -4
 			if Input.is_action_pressed("rotate_right"):
 				spinDirection = 1
-				frameNumSpin = -9
-		else:
-			if spinDirection == -1:
-				angular_velocity = -(10-abs(frameNumSpin))+0.175
-			else:
-				angular_velocity = (10-abs(frameNumSpin))-0.175
+				frameNumSpin = -4
+		elif frameNumSpin < 5:
+			state.angular_velocity = spinDirection * (5-abs(frameNumSpin)) * 3.834
 			frameNumSpin += 1
-			if frameNumSpin >= 10:
+		else:
+			if state.angular_velocity != 0:
+				state.angular_velocity = 0
+			if frameNumSpin >= 20:
 				spinDirection = 0
-				angular_velocity = 0
 				rotation_degrees = round(rotation_degrees)
+			frameNumSpin += 1
 
 
-func collide(body: Node):
-	gravity_scale = 1.0
-	falling = false
+func collide(_body: Node):
+	if falling:
+		linear_velocity.y = 0
+		linear_velocity.x = moveDirection*abs(moveDirection)*50
+		angular_velocity /= 2
+		gravity_scale = 1.0
+		falling = false
+		emit_signal("piece_placed")
+
+func drop(state):
+	var moveDistance : int = 1000
+	while test_motion(Vector2(0,moveDistance),false):
+		moveDistance-=1
+	state.transform.origin.y += moveDistance
+	state.linear_velocity.y = 0
