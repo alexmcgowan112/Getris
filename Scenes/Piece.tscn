@@ -24,4 +24,12 @@ color = Color( 0.568627, 0.568627, 0.568627, 1 )
 invert_border = 10.0
 polygon = PoolVector2Array( -32, 32, -32, -32, 32, -32, 32, 32 )
 
+[node name="FallTrajectory" type="Line2D" parent="."]
+show_behind_parent = true
+z_index = -5
+z_as_relative = false
+points = PoolVector2Array( 0, 0, 0, 1000 )
+width = 64.0
+default_color = Color( 0.419608, 0.666667, 0.34902, 0.196078 )
+
 [connection signal="body_entered" from="." to="." method="collide"]

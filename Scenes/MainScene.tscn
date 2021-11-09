@@ -1,5 +1,6 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=7 format=2]
 
+[ext_resource path="res://Scripts/Camera.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/GameManager.gd" type="Script" id=3]
 
 [sub_resource type="PhysicsMaterial" id=1]
@@ -9,6 +10,12 @@ rough = true
 [sub_resource type="RectangleShape2D" id=2]
 extents = Vector2( 160, 500 )
 
+[sub_resource type="RectangleShape2D" id=3]
+extents = Vector2( 448, 640 )
+
+[sub_resource type="RectangleShape2D" id=4]
+extents = Vector2( 64, 1280 )
+
 [node name="MainScene" type="Node2D"]
 script = ExtResource( 3 )
 
@@ -16,17 +23,36 @@ script = ExtResource( 3 )
 position = Vector2( 0, 64 )
 physics_material_override = SubResource( 1 )
 
+[node name="Polygon2D" type="Polygon2D" parent="Ground"]
+color = Color( 0.694118, 0.694118, 0.694118, 1 )
+polygon = PoolVector2Array( -160, -64, 160, -64, 160, 0, -160, 0 )
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Ground"]
 position = Vector2( 0, 436 )
 shape = SubResource( 2 )
 
-[node name="Polygon2D" type="Polygon2D" parent="Ground"]
-color = Color( 0.694118, 0.694118, 0.694118, 1 )
-polygon = PoolVector2Array( -160, -64, 160, -64, 160, 0, -160, 0 )
+[node name="OutOfBounds" type="Area2D" parent="."]
+position = Vector2( 0, 64 )
+
+[node name="Below" type="CollisionShape2D" parent="OutOfBounds"]
+position = Vector2( 0, 768 )
+shape = SubResource( 3 )
+
+[node name="LeftWall" type="CollisionShape2D" parent="OutOfBounds"]
+position = Vector2( -512, -640 )
+shape = SubResource( 4 )
+
+[node name="RightWall" type="CollisionShape2D" parent="OutOfBounds"]
+position = Vector2( 512, -640 )
+shape = SubResource( 4 )
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2( 0, -256 )
 current = true
 limit_bottom = 64
+limit_smoothed = true
+script = ExtResource( 1 )
 
 [node name="Pieces" type="Node" parent="."]
+
+[connection signal="body_entered" from="OutOfBounds" to="." method="_on_OutOfBounds_body_entered"]
