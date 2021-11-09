@@ -58,13 +58,14 @@ func find_highest_piece(checkAll: bool):
 	# cameraZoom = zoomAmount
 	# print(cameraZoom)
 	camera.set_target(max_height)
-	pieceSpawnHeight = -640*camera.currentZoom
+	pieceSpawnHeight = camera.targetY-((get_viewport().size.y/2)*camera.currentZoom+64)
 
 	
 func _on_OutOfBounds_body_entered(body):
 	if body.is_in_group("Pieces"):
-		pieces.erase(body)
-		body.queue_free()
-		if body.falling:
-			next_piece()
-		find_highest_piece(true)
+		if abs(body.linear_velocity.y) > 50:
+			pieces.erase(body)
+			body.queue_free()
+			if body.falling:
+				next_piece()
+			find_highest_piece(true)

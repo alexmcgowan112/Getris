@@ -167,7 +167,7 @@ func collide(_body: Node):
 		emit_signal("piece_placed")
 
 func drop(state):
-	var moveDistance : int = 1000
+	var moveDistance : int = get_viewport().size.y+320
 	while test_motion(Vector2(0,moveDistance),false):
 		moveDistance-=1
 	state.transform.origin.y += moveDistance

@@ -28,7 +28,7 @@ polygon = PoolVector2Array( -32, 32, -32, -32, 32, -32, 32, 32 )
 show_behind_parent = true
 z_index = -5
 z_as_relative = false
-points = PoolVector2Array( 0, 0, 0, 1000 )
+points = PoolVector2Array( 0, 0, 0, 1e+13 )
 width = 64.0
 default_color = Color( 0.419608, 0.666667, 0.34902, 0.196078 )
 
