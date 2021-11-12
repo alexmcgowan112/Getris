@@ -2,35 +2,25 @@ extends Camera2D
 
 
 var targetY : float = -256
-var currentZoom : float = 1.0
-var adjustSpeed : int = 100
+var adjustTime : float = 1.5
 
-func _physics_process(delta):
-	if abs(targetY - position.y) > 10:
-		var moveTo = smoothly_approach_value(position.y,targetY)
-		# move camera up
-		if moveTo < position.y:
-			if currentZoom < 1.5 and position.y >= zoom_amount_2_pos(1.5):
-				currentZoom = pos_2_zoom_amount(moveTo)
-				if currentZoom > 1.5:
-					currentZoom = 1.5
-				zoom = Vector2(currentZoom, currentZoom)
-				scale = zoom
-			position.y = moveTo
-		# move camera down
-		elif moveTo > position.y:
-			if position.y >= zoom_amount_2_pos(1.5):
-				currentZoom = pos_2_zoom_amount(moveTo)
-				if currentZoom < 1.0:
-					currentZoom = 1.0
-				zoom = Vector2(currentZoom, currentZoom)
-				scale = zoom
-			position.y = moveTo
+onready var tween = get_node("Tween")
 
-func smoothly_approach_value(from, to):
-	var move_to : float
-	move_to = (to - from)/adjustSpeed + from
-	return move_to
+func _ready():
+	tween.interpolate_property(self, "offset:x", -496, 0, 0.5, Tween.TRANS_BACK)
+	tween.start()
+
+func update_camera():
+	if position.y >= zoom_amount_2_pos(1.5):
+		var targetZoom = pos_2_zoom_amount(targetY)
+		if targetZoom > 1.5:
+			targetZoom = 1.5
+		if targetZoom < 1.0:
+			targetZoom = 1.0
+		tween.interpolate_property(self, "zoom", Vector2(zoom.y,zoom.y), Vector2(targetZoom,targetZoom), adjustTime, tween.TRANS_SINE)
+		tween.interpolate_property(self, "scale", Vector2(zoom.y,zoom.y), Vector2(targetZoom,targetZoom), adjustTime, tween.TRANS_SINE)
+	tween.interpolate_property(self, "position", Vector2(position.x,position.y), Vector2(position.x,targetY), adjustTime, tween.TRANS_SINE)
+	tween.start()
 
 func zoom_amount_2_pos(zoomAmount):
 	return -(get_viewport().size.y/2)*zoomAmount+64
@@ -38,8 +28,8 @@ func zoom_amount_2_pos(zoomAmount):
 func pos_2_zoom_amount(pos):
 	return (pos-64)/-(get_viewport().size.y/2)
 
-
 func set_target(value):
 	targetY = value
 	if targetY > zoom_amount_2_pos(1):
 		targetY = zoom_amount_2_pos(1)
+	update_camera()

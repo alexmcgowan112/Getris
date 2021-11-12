@@ -2,6 +2,7 @@ extends RigidBody2D
 
 
 signal piece_placed
+signal piece_fell
 
 var random = RandomNumberGenerator.new()
 
@@ -24,10 +25,13 @@ var frameNumSpin : int
 var leftmost_point : float = 0
 var rightmost_point : float = 0
 
+var placedPosition : Vector2 = Vector2()
+
 func _ready():
 	if sprite != null:
-		sprite.set_polygon(polygon)
-		collider.set_polygon(polygon)
+		sprite.call_deferred("set_polygon",polygon)
+		collider.call_deferred("set_polygon",polygon)
+		trajectoryLine.width = rightmost_point*2
 	linear_velocity.y = fall_speed
 	gravity_scale = 0
 	add_to_group("Pieces")
@@ -43,27 +47,35 @@ func _init(shape = -1):
 		#Square
 		0:
 			vertices = [Vector2(-32,-32),Vector2(32,-32),Vector2(32,32),Vector2(-32,32)]
+			leftmost_point = -32
+			rightmost_point = 32
 		#Line
 		1:
 			#Standard
 			#vertices = [Vector2(-64,-32),Vector2(64,-16),Vector2(64,0),Vector2(-64,0)]
 			#Centered
 			vertices = [Vector2(-64,-16),Vector2(64,-16),Vector2(64,16),Vector2(-64,16)]
+			leftmost_point = -64
+			rightmost_point = 64
 		#T
 		2:
 			vertices = [Vector2(-48,16),Vector2(48,16),Vector2(48,-16),Vector2(16,-16),Vector2(16,-48),Vector2(-16,-48),Vector2(-16,-16),Vector2(-48,-16)]
+			
 		#L
 		3:
 			vertices = [Vector2(-48,16),Vector2(48,16),Vector2(48,-16),Vector2(-16,-16),Vector2(-16,-48),Vector2(-48,-48)]
+			
 		#Backwards L
 		4:
 			vertices = [Vector2(48,16),Vector2(48,-48),Vector2(16,-48),Vector2(16,-16),Vector2(-48,-16),Vector2(-48,16)]
+			
 		#S
 		5:
 			#Standard
 			#vertices = [Vector2(-16,16),Vector2(-16,-16),Vector2(48,-16),Vector2(48,16),Vector2(16,16),Vector2(16,48),Vector2(-48,48),Vector2(-48,16)]
 			#Centered
 			vertices = [Vector2(-16,0),Vector2(-16,-32),Vector2(48,-32),Vector2(48,0),Vector2(16,0),Vector2(16,32),Vector2(-48,32),Vector2(-48,0)]
+			
 		#Z
 		6:
 			#Standard
@@ -71,11 +83,16 @@ func _init(shape = -1):
 			#Centered
 			vertices = [Vector2(-16,0),Vector2(-16,32),Vector2(48,32),Vector2(48,0),Vector2(16,0),Vector2(16,-32),Vector2(-48,-32),Vector2(-48,0)]
 			
+	if leftmost_point == 0:
+		leftmost_point = -48
+		rightmost_point = 48
+			
 	
 	polygon = PoolVector2Array(vertices)
 	if sprite != null:
-		sprite.set_polygon(polygon)
-		collider.set_polygon(polygon)
+		sprite.call_deferred("set_polygon",polygon)
+		collider.call_deferred("set_polygon",polygon)
+		trajectoryLine.width = rightmost_point*2
 
 
 func _integrate_forces(state):
@@ -139,17 +156,21 @@ func _integrate_forces(state):
 				spinDirection = 0
 				rotation_degrees = round(rotation_degrees)
 			frameNumSpin += 1
-	find_highest_point()
-	find_edges()
-	# position fall trajectory outline
-	if falling:
-		if pieceShape == 2:
-			trajectoryLine.global_position.x = (leftmost_point+rightmost_point)/2
-		elif pieceShape == 3 or pieceShape == 4:
-			trajectoryLine.global_position.x = (leftmost_point+rightmost_point)/2
-			trajectoryLine.global_position.y = to_global(polygon[3]).y
-		trajectoryLine.width = rightmost_point-leftmost_point
-		trajectoryLine.global_rotation_degrees = 0
+		find_highest_point()
+		find_edges()
+		# position fall trajectory outline
+		if falling:
+			if pieceShape == 2:
+				trajectoryLine.global_position.x = (leftmost_point+rightmost_point)/2
+			elif pieceShape == 3 or pieceShape == 4:
+				trajectoryLine.global_position.x = (leftmost_point+rightmost_point)/2
+				trajectoryLine.global_position.y = to_global(polygon[3]).y
+			trajectoryLine.width = rightmost_point-leftmost_point
+			trajectoryLine.global_rotation_degrees = 0
+	elif placedPosition.y < position.y-16 and linear_velocity.y < 1:
+		emit_signal("piece_fell",true)
+		placedPosition = position
+
 
 
 
@@ -163,8 +184,9 @@ func collide(_body: Node):
 		angular_velocity /= 2
 		gravity_scale = 1.0
 		falling = false
-		contact_monitor = false
-		emit_signal("piece_placed")
+		placedPosition = position
+		set_deferred("contact_monitor", false)
+		call_deferred("emit_signal","piece_placed")
 
 func drop(state):
 	var moveDistance : int = get_viewport().size.y+320
