@@ -88,7 +88,6 @@ func register_buttons():
 		button.connect("pressed", self, "_on_button_pressed", [button.name])
 
 func _on_button_pressed(name):
-	print(name, " pressed")
 	match name:
 		"Pause":
 			get_tree().paused = true

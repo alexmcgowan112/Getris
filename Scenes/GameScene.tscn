@@ -56,10 +56,12 @@ transform = Transform2D( 1, 0, 0, 1, 640, 0 )
 [node name="Menus" type="Node" parent="."]
 
 [node name="PauseMenu" parent="Menus" instance=ExtResource( 5 )]
+layer = 2
 offset = Vector2( 640, 0 )
 transform = Transform2D( 1, 0, 0, 1, 640, 0 )
 
 [node name="GameOverMenu" parent="Menus" instance=ExtResource( 4 )]
+layer = 3
 offset = Vector2( 640, 0 )
 transform = Transform2D( 1, 0, 0, 1, 640, 0 )
 
