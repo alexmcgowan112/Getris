@@ -13,7 +13,7 @@ var pieceSpawnHeight : float = -640.0
 
 var lives : int = 3
 
-onready var screenWidth = get_viewport().size.x
+onready var screenHeight = (get_viewport().size.y/get_viewport().size.x)*640
 
 onready var camera = get_node("Camera2D")
 onready var ui = get_node("UI")
@@ -28,11 +28,12 @@ func _ready():
 
 	for _i in range(7):
 		pieceSequence.append(random.randi_range(0,6))
-	
+
 	next_piece()
 
 
 func next_piece():
+	print("creating piece")
 	find_highest_piece(false)
 
 	var piece = pieceScene.instance(random.randi_range(0,6))
@@ -41,6 +42,7 @@ func next_piece():
 	pieces.append(piece)
 	piece.connect("piece_placed", self, "next_piece")
 	piece.connect("piece_fell", self, "find_highest_piece")
+	piece.connect("delete_piece", self, "delete_piece")
 
 	# if numPieces % 7 == 6:
 	# 	var tempSequence : Array
@@ -48,7 +50,7 @@ func next_piece():
 	# 	var tooFewOf : Array
 	# 	for _i in range(7):
 
-func find_highest_piece(checkAll: bool):
+func find_highest_piece(checkAll: bool = true):
 	var numPieces = pieces.size()
 	if checkAll:
 		var highest : float = 0.0
@@ -65,22 +67,20 @@ func find_highest_piece(checkAll: bool):
 				max_height = pieceHeight
 	
 	camera.set_target(max_height)
-	pieceSpawnHeight = camera.targetY-((get_viewport().size.y/2)*camera.zoom.y+64)
+	screenHeight = (get_viewport().size.y/get_viewport().size.x)*640
+	pieceSpawnHeight = camera.targetY-((screenHeight/2)*camera.zoom.y+64)
 
-	
-func _on_OutOfBounds_body_entered(body):
-	if body.is_in_group("Pieces"):
-		if abs(body.linear_velocity.y) > 50:
-			pieces.erase(body)
-			body.queue_free()
-			if body.falling:
-				call_deferred("next_piece")
-			find_highest_piece(true)
-			lives-=1
-			ui.update_lives(lives)
-			if lives <= 0:
-				get_tree().paused = true
-				gameOverMenu.appear()
+func delete_piece(piece):
+	pieces.erase(piece)
+	piece.queue_free()
+	if piece.falling:
+		call_deferred("next_piece")
+	find_highest_piece()
+	lives=ui.subtract_life()
+	if lives <= 0:
+		get_tree().paused = true
+		gameOverMenu.appear()
+
 
 func register_buttons():
 	var buttons = get_tree().get_nodes_in_group("Buttons")
@@ -109,7 +109,7 @@ func _on_button_pressed(name):
 
 func clear_screen():
 	if not camera.tween.is_active():
-		camera.tween.interpolate_property(camera, "offset:x", 0, screenWidth, 0.4, Tween.TRANS_BACK)
+		camera.tween.interpolate_property(camera, "offset:x", 0, 640, 0.4, Tween.TRANS_BACK)
 		ui.disappear()
 		pauseMenu.disappear()
 		gameOverMenu.disappear()

@@ -31,4 +31,9 @@ points = PoolVector2Array( 0, 0, 0, 1e+13 )
 width = 64.0
 default_color = Color( 0.419608, 0.666667, 0.34902, 0.196078 )
 
+[node name="VisibilityNotifier2D" type="VisibilityNotifier2D" parent="."]
+rect = Rect2( -64, -64, 128, 128 )
+
 [connection signal="body_entered" from="." to="." method="collide"]
+[connection signal="screen_entered" from="VisibilityNotifier2D" to="." method="_on_VisibilityNotifier2D_screen_entered"]
+[connection signal="screen_exited" from="VisibilityNotifier2D" to="." method="_on_VisibilityNotifier2D_screen_exited"]

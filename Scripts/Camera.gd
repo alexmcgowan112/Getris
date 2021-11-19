@@ -6,6 +6,8 @@ var adjustTime : float = 1.5
 
 onready var tween = get_node("Tween")
 
+onready var screenHeight = (get_viewport().size.y/get_viewport().size.x)*640
+
 func _ready():
 	tween.interpolate_property(self, "offset:x", -496, 0, 0.5, Tween.TRANS_BACK)
 	tween.start()
@@ -23,12 +25,13 @@ func update_camera():
 	tween.start()
 
 func zoom_amount_2_pos(zoomAmount):
-	return -(get_viewport().size.y/2)*zoomAmount+64
+	return -(screenHeight/2)*zoomAmount+64
 
 func pos_2_zoom_amount(pos):
-	return (pos-64)/-(get_viewport().size.y/2)
+	return (pos-64)/-(screenHeight/2)
 
 func set_target(value):
+	screenHeight = (get_viewport().size.y/get_viewport().size.x)*640
 	targetY = value
 	if targetY > zoom_amount_2_pos(1):
 		targetY = zoom_amount_2_pos(1)

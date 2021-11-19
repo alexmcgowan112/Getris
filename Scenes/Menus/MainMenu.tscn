@@ -10,13 +10,16 @@
 margin_top = 166.0
 margin_bottom = 284.0
 
+[node name="Title" parent="MarginContainer/VBoxContainer/CenterContainer" index="0"]
+margin_left = 151.0
+margin_right = 448.0
+text = "Getris!"
+
 [node name="Buttons" parent="MarginContainer/VBoxContainer" index="1"]
 margin_top = 334.0
 margin_bottom = 434.0
 
-[node name="Play" type="TextureButton" parent="MarginContainer/VBoxContainer/Buttons" index="0" groups=[
-"Buttons",
-]]
+[node name="Play" type="TextureButton" parent="MarginContainer/VBoxContainer/Buttons" index="0" groups=["Buttons"]]
 margin_left = 168.0
 margin_right = 268.0
 margin_bottom = 100.0
@@ -25,9 +28,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Settings" type="TextureButton" parent="MarginContainer/VBoxContainer/Buttons" index="1" groups=[
-"Buttons",
-]]
+[node name="Settings" type="TextureButton" parent="MarginContainer/VBoxContainer/Buttons" index="1" groups=["Buttons"]]
 margin_left = 332.0
 margin_right = 432.0
 margin_bottom = 100.0
