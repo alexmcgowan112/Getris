@@ -18,6 +18,8 @@ func _process(_delta):
 func subtract_life():
 	if liveCooldownTimer.is_stopped():
 		lives -= 1
+		if OS.get_name()=="Android" or OS.get_name()=="iOS":
+			Input.vibrate_handheld(200)
 		update_lives()
 		liveCooldownTimer.start()
 	return lives
@@ -32,9 +34,13 @@ func update_lives(amount: int = lives):
 
 func register_buttons():
 	var buttons = get_tree().get_nodes_in_group("ControlButtons")
-	for button in buttons:
-		button.connect("button_down", self, "_on_button_pressed", [button.name])
-		button.connect("button_up", self, "_on_button_released", [button.name])
+	if OS.get_name()=="Android" or OS.get_name()=="iOS":
+		for button in buttons:
+			button.connect("button_down", self, "_on_button_pressed", [button.name])
+			button.connect("button_up", self, "_on_button_released", [button.name])
+	else:
+		for button in buttons:
+			button.queue_free()
 
 func _on_button_pressed(name):
 	Input.action_press(name)

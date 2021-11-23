@@ -16,7 +16,6 @@ config/icon="res://Assets/Icons/icon.png"
 
 [debug]
 
-settings/stdout/verbose_stdout=true
 gdscript/warnings/unused_argument=false
 gdscript/warnings/narrowing_conversion=false
 gdscript/warnings/unused_signal=false

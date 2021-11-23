@@ -1,6 +1,5 @@
 extends RigidBody2D
 
-
 signal piece_placed
 signal piece_fell
 signal delete_piece
@@ -31,15 +30,14 @@ var placedPosition : Vector2 = Vector2()
 var onScreen = true
 
 func _ready():
-	if sprite != null:
-		sprite.call_deferred("set_polygon",polygon)
-		collider.call_deferred("set_polygon",polygon)
-		trajectoryLine.width = rightmost_point*2
+	sprite.call_deferred("set_polygon",polygon)
+	collider.call_deferred("set_polygon",polygon)
+	trajectoryLine.width = rightmost_point*2
 	linear_velocity.y = fall_speed
 	gravity_scale = 0
 	add_to_group("Pieces")
 
-func _init(shape = -1):
+func init(shape = -1):
 	random.randomize()
 	if shape == -1:
 		shape = random.randi_range(0,6)
@@ -92,11 +90,7 @@ func _init(shape = -1):
 			
 	
 	polygon = PoolVector2Array(vertices)
-	if sprite != null:
-		sprite.call_deferred("set_polygon",polygon)
-		collider.call_deferred("set_polygon",polygon)
-		trajectoryLine.width = rightmost_point*2
-	print("piece created")
+	return self
 
 
 func _integrate_forces(state):
@@ -193,7 +187,6 @@ func collide(_body: Node):
 		placedPosition = position
 		set_deferred("contact_monitor", false)
 		call_deferred("emit_signal","piece_placed")
-		print("piece placed")
 
 func drop(state):
 	var moveDistance : int = -position.y+320
