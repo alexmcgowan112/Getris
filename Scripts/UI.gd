@@ -39,8 +39,7 @@ func register_buttons():
 			button.connect("button_down", self, "_on_button_pressed", [button.name])
 			button.connect("button_up", self, "_on_button_released", [button.name])
 	else:
-		for button in buttons:
-			button.queue_free()
+		$MarginContainer.queue_free()
 
 func _on_button_pressed(name):
 	Input.action_press(name)

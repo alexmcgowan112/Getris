@@ -16,7 +16,6 @@ onready var trajectoryLine = get_node("FallTrajectory")
 # movement vars
 var falling : bool = true
 var fall_speed : float = 64
-var drop_speed : float = 256
 var moveDirection : int = 0
 var frameNumMove : int
 var spinDirection: int = 0
@@ -37,7 +36,10 @@ func _ready():
 	gravity_scale = 0
 	add_to_group("Pieces")
 
-func init(shape = -1):
+func init(spawn_height, shape = -1):
+	position.y = spawn_height
+	fall_speed = spawn_height/-10
+
 	random.randomize()
 	if shape == -1:
 		shape = random.randi_range(0,6)
@@ -99,8 +101,8 @@ func _integrate_forces(state):
 			if Input.is_action_just_pressed("drop"):
 				drop(state)
 			if Input.is_action_pressed("down"):
-				if linear_velocity.y != drop_speed:
-					linear_velocity.y = drop_speed
+				if linear_velocity.y != fall_speed*3:
+					linear_velocity.y = fall_speed*3
 			else:
 				if linear_velocity.y != fall_speed:
 					linear_velocity.y = fall_speed
@@ -197,9 +199,10 @@ func drop(state):
 
 func find_highest_point():
 	var highest_point : float = 0
-	for i in range(polygon.size()):
-		if to_global(polygon[i]).y < highest_point:
-			highest_point = to_global(polygon[i]).y
+	for point in polygon:
+		var global_y_pos = to_global(point).y
+		if global_y_pos < highest_point:
+			highest_point = global_y_pos
 	return highest_point
 
 func find_edges():

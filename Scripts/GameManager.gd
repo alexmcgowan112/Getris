@@ -35,9 +35,8 @@ func _ready():
 func next_piece():
 	find_highest_piece(false)
 
-	var piece = pieceScene.instance().init(random.randi_range(0,6))
+	var piece = pieceScene.instance().init(pieceSpawnHeight, random.randi_range(0,6))
 	get_node("Pieces").add_child(piece)
-	piece.global_transform.origin = Vector2(0,pieceSpawnHeight)
 	pieces.append(piece)
 	piece.connect("piece_placed", self, "next_piece")
 	piece.connect("piece_fell", self, "find_highest_piece")
