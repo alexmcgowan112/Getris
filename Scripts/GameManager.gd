@@ -1,4 +1,4 @@
-#TODO - Highscores
+#TODO - Highscores (pieces placed in a small area and/or on a small platform, height reached, time to reach specific height, etc)
 #TODO? - Alternative gamemodes
 
 extends Node2D
@@ -39,6 +39,10 @@ func _ready():
 
 	next_piece()
 
+func _process(delta):
+	if currentPiece.position.y >= camera.position.y+16:
+		camera.position.y += (currentPiece.position.y - camera.position.y)*delta
+
 # Creates sequences of pieces 7 at a time. If a sequence is missing any pieces, the next one is guaranteed to have those missing pieces.
 func create_sequence():
 	pieceSequence = nextSequence.duplicate()
@@ -58,7 +62,7 @@ func create_sequence():
 			missing.remove(0)
 
 func next_piece():
-	call_deferred("find_highest_piece", false)
+	find_highest_piece(false)
 	if currentPiece:
 		pieces.append(currentPiece)
 
@@ -93,12 +97,13 @@ func find_highest_piece(checkAll: bool = true):
 	camera.set_target(max_height)
 	screenHeight = (get_viewport().size.y/get_viewport().size.x)*640
 	pieceSpawnHeight = camera.targetY-((screenHeight/2)*camera.zoom.y+64)
+	ui.update_score(max_height)
 
 func delete_piece(piece):
 	pieces.erase(piece)
-	piece.queue_free()
 	if piece.falling:
 		call_deferred("next_piece")
+	piece.queue_free()
 	find_highest_piece()
 	lives=ui.subtract_life(camera)
 	if lives <= 0:

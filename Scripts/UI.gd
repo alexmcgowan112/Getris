@@ -3,9 +3,11 @@
 extends "res://Scripts/Menu.gd"
 
 var lives : int = 3
-
 onready var livesBar = get_node("LostLives/Lives")
 onready var liveCooldownTimer = get_node("LostLives/LiveCooldownTimer")
+
+var maxScore : float = 0.0
+onready var scoreText = get_node("Score")
 
 func _ready():
 	register_buttons()
@@ -16,6 +18,12 @@ func _process(_delta):
 		update_lives(lives+1)
 	else:
 		update_lives()
+
+func update_score(height):
+	var score = round(-height / 32)
+	if score > maxScore:
+		scoreText.text = "Score: " + str(score)
+		maxScore = score
 
 func subtract_life(camera):
 	if liveCooldownTimer.is_stopped():

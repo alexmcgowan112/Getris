@@ -32,6 +32,7 @@ polygon = PoolVector2Array( -32, -32, 32, -32, 32, 32, -32, 32 )
 [node name="Polygon" type="Polygon2D" parent="."]
 antialiased = true
 texture = SubResource( 3 )
+texture_scale = Vector2( 0.98, 0.98 )
 invert_border = 10.0
 polygon = PoolVector2Array( -32, 32, -32, -32, 32, -32, 32, 32 )
 

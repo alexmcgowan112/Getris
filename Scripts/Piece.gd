@@ -207,14 +207,13 @@ func collide(state):
 		global_position = state.transform.origin
 		set_deferred("contact_monitor", false)
 		call_deferred("emit_signal","piece_placed")
-		collider.set_deferred("scale",Vector2(1,1))
 
 func drop(state):
 	var moveDistance : int = -position.y+320
 	while test_motion(Vector2(0,moveDistance),false):
 		moveDistance-=1
 	state.transform.origin.y += moveDistance
-	call_deferred("collide", state)
+	collide(state)
 
 func find_highest_point():
 	if is_inside_tree():
