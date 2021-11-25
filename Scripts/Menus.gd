@@ -15,6 +15,7 @@ func register_buttons():
 	for button in buttons:
 		button.connect("pressed", self, "_on_button_pressed", [button.name])
 
+
 func _on_button_pressed(name):
 	match name:
 		"Home":

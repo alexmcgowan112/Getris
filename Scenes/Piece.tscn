@@ -45,7 +45,7 @@ width = 64.0
 default_color = Color( 0.419608, 0.666667, 0.34902, 0.196078 )
 
 [node name="VisibilityNotifier2D" type="VisibilityNotifier2D" parent="."]
-rect = Rect2( -64, -64, 128, 128 )
+rect = Rect2( -48, -32, 96, 64 )
 
 [connection signal="screen_entered" from="VisibilityNotifier2D" to="." method="_on_VisibilityNotifier2D_screen_entered"]
 [connection signal="screen_exited" from="VisibilityNotifier2D" to="." method="_on_VisibilityNotifier2D_screen_exited"]

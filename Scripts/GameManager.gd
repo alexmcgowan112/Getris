@@ -14,7 +14,7 @@ var pieces : Array
 var max_height : float = 0
 
 var pieceScene = preload("res://Scenes/Piece.tscn")
-var pieceSpawnHeight : float = -640.0
+var pieceSpawnHeight : float
 var currentPiece
 
 var lives : int = 3
@@ -34,14 +34,21 @@ func _ready():
 
 	for i in range(7):
 		nextSequence[i] = random.randi_range(0,6)
-
 	create_sequence()
 
+	pieceSpawnHeight = -screenHeight - 64
 	next_piece()
+
+func register_buttons():
+	var buttons = get_tree().get_nodes_in_group("Buttons")
+	for button in buttons:
+		button.connect("pressed", self, "_on_button_pressed", [button.name])
+
 
 func _process(delta):
 	if currentPiece.position.y >= camera.position.y+16:
 		camera.position.y += (currentPiece.position.y - camera.position.y)*delta
+
 
 # Creates sequences of pieces 7 at a time. If a sequence is missing any pieces, the next one is guaranteed to have those missing pieces.
 func create_sequence():
@@ -61,23 +68,6 @@ func create_sequence():
 			nextSequence[i] = missing[0]
 			missing.remove(0)
 
-func next_piece():
-	find_highest_piece(false)
-	if currentPiece:
-		pieces.append(currentPiece)
-
-	var piece = pieceScene.instance().init(pieceSpawnHeight, pieceSequence[sequenceIndex])
-	currentPiece = piece
-	get_node("Pieces").add_child(piece)
-	piece.connect("piece_placed", self, "next_piece")
-	piece.connect("piece_fell", self, "find_highest_piece")
-	piece.connect("delete_piece", self, "delete_piece")
-
-	sequenceIndex += 1
-	if sequenceIndex >= 7:
-		create_sequence()
-		sequenceIndex = 0
-
 func find_highest_piece(checkAll: bool = true):
 	var numPieces = pieces.size()
 	if numPieces>0:
@@ -94,10 +84,27 @@ func find_highest_piece(checkAll: bool = true):
 			if pieceHeight < max_height:
 				max_height = pieceHeight
 
+	ui.update_score(max_height)
 	camera.set_target(max_height)
 	screenHeight = (get_viewport().size.y/get_viewport().size.x)*640
 	pieceSpawnHeight = camera.targetY-((screenHeight/2)*camera.zoom.y+64)
-	ui.update_score(max_height)
+
+func next_piece():
+	call_deferred("find_highest_piece",false)
+	if currentPiece:
+		pieces.append(currentPiece)
+
+	var piece = pieceScene.instance().init(pieceSpawnHeight, pieceSequence[sequenceIndex])
+	currentPiece = piece
+	get_node("Pieces").add_child(piece)
+	piece.connect("piece_placed", self, "next_piece")
+	piece.connect("piece_fell", self, "find_highest_piece")
+	piece.connect("delete_piece", self, "delete_piece")
+
+	sequenceIndex += 1
+	if sequenceIndex >= 7:
+		create_sequence()
+		sequenceIndex = 0
 
 func delete_piece(piece):
 	pieces.erase(piece)
@@ -110,11 +117,6 @@ func delete_piece(piece):
 		get_tree().paused = true
 		gameOverMenu.appear()
 
-
-func register_buttons():
-	var buttons = get_tree().get_nodes_in_group("Buttons")
-	for button in buttons:
-		button.connect("pressed", self, "_on_button_pressed", [button.name])
 
 func _on_button_pressed(name):
 	match name:
@@ -134,7 +136,6 @@ func _on_button_pressed(name):
 			yield(camera.tween, "tween_completed")
 			get_tree().paused = false
 			get_tree().change_scene("res://Scenes/Menus.tscn")
-
 
 func clear_screen():
 	if not camera.tween.is_active():

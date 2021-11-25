@@ -18,6 +18,8 @@ onready var collider : Node = get_node("Collider")
 
 onready var trajectoryLine = get_node("FallTrajectory")
 
+onready var visibilityTracker = get_node("VisibilityNotifier2D")
+
 # movement vars
 var falling : bool = true
 var fall_speed : float = 64
@@ -33,15 +35,6 @@ var placedPosition : Vector2 = Vector2()
 
 var onScreen = true
 
-func _ready():
-	sprite.call_deferred("set_polygon",polygon)
-	sprite.call_deferred("set_color",color)
-	sprite.texture.noise.call_deferred("set_seed",random.randi())
-	collider.call_deferred("set_polygon",polygon)
-	trajectoryLine.width = rightmost_point*2
-	linear_velocity.y = fall_speed
-	gravity_scale = 0
-	add_to_group("Pieces")
 
 func init(spawn_height, shape = -1, property = 0):
 	position.y = spawn_height
@@ -96,31 +89,47 @@ func init(spawn_height, shape = -1, property = 0):
 			vertices = [Vector2(-16,0),Vector2(-16,32),Vector2(48,32),Vector2(48,0),Vector2(16,0),Vector2(16,-32),Vector2(-48,-32),Vector2(-48,0)]
 			color = Color.red
 	
-	
 	color = color.lightened(0.5)
 	
 	if leftmost_point == 0:
 		leftmost_point = -48
 		rightmost_point = 48
-			
 	
 	polygon = PoolVector2Array(vertices)
 	return self
+
+func _ready():
+	sprite.polygon = polygon
+	sprite.color = color
+	sprite.texture.noise.seed = random.randi()
+	collider.polygon = polygon
+	trajectoryLine.width = rightmost_point*2
+	if pieceShape == 0:
+		visibilityTracker.rect.position = Vector2(-32,-32)
+		visibilityTracker.rect.end = Vector2(32,32)
+	elif pieceShape == 1:
+		visibilityTracker.rect.position = Vector2(-64,-16)
+		visibilityTracker.rect.end = Vector2(64,16)
+	linear_velocity.y = fall_speed
+	gravity_scale = 0
+	add_to_group("Pieces")
 
 
 func _integrate_forces(state):
 	if falling:
 		if onScreen:
+			# downward movement
 			if Input.is_action_just_pressed("drop"):
 				drop(state)
+				return
 			if Input.is_action_pressed("down"):
 				if linear_velocity.y != fall_speed*3:
 					linear_velocity.y = fall_speed*3
 			else:
 				if linear_velocity.y != fall_speed:
 					linear_velocity.y = fall_speed
-
 			
+			# horizontal movement
 			if moveDirection == 0:
 				if Input.is_action_pressed("shove_left"):
 					if leftmost_point >= -288:
@@ -153,6 +162,7 @@ func _integrate_forces(state):
 					moveDirection = 0
 				frameNumMove += 1
 
+			# rotational movement
 			if spinDirection == 0:
 				if Input.is_action_pressed("rotate_left"):
 					spinDirection = -1
@@ -173,8 +183,9 @@ func _integrate_forces(state):
 					state.transform.y.x = round(state.transform.y.x)
 					state.transform.y.y = round(state.transform.y.y)
 				frameNumSpin += 1
+			
+			# position trajectory outline
 			find_edges()
-			# position fall trajectory
 			if falling:
 				if pieceShape == 2:
 					trajectoryLine.global_position.x = (leftmost_point+rightmost_point)/2
@@ -183,23 +194,24 @@ func _integrate_forces(state):
 					trajectoryLine.global_position.y = to_global(polygon[3]).y
 				trajectoryLine.width = rightmost_point-leftmost_point
 				trajectoryLine.global_rotation_degrees = 0
-		else:
-			drop(state)
+				
+				#check if the piece has or is about to collide
+				if test_motion(Vector2(0,1),false) or state.get_contact_count() > 0:
+					collide(state)
+		
+	# if the piece is already placed, check if it has moved
 	elif placedPosition.y < position.y-15:
 		emit_signal("piece_fell")
 		placedPosition = position
+	# check if the piece has fallen below the world
 	if position.y > 128:
 		emit_signal("delete_piece", self)
-	if state.get_contact_count() > 0:
-		collide(state)
 
 func collide(state):
 	if falling:
 		trajectoryLine.queue_free()
 		state.linear_velocity.y = 0
 		state.linear_velocity.x = moveDirection*abs(moveDirection)*50
-		if test_motion(Vector2(0,1)):
-			state.linear_velocity.x = 0
 		state.angular_velocity /= 2
 		gravity_scale = 1.0
 		falling = false
@@ -208,12 +220,14 @@ func collide(state):
 		set_deferred("contact_monitor", false)
 		call_deferred("emit_signal","piece_placed")
 
+
 func drop(state):
 	var moveDistance : int = -position.y+320
 	while test_motion(Vector2(0,moveDistance),false):
 		moveDistance-=1
 	state.transform.origin.y += moveDistance
 	collide(state)
+
 
 func find_highest_point():
 	if is_inside_tree():
