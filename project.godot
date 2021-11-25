@@ -12,6 +12,8 @@ config_version=4
 
 config/name="Tetris"
 run/main_scene="res://Scenes/Menus.tscn"
+boot_splash/image="res://Assets/Icons/BLANK_ICON.png"
+boot_splash/bg_color=Color( 0.239216, 0.423529, 0.415686, 1 )
 config/icon="res://Assets/Icons/icon.png"
 
 [debug]

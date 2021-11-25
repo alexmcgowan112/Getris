@@ -20,9 +20,12 @@ func update_camera():
 		if targetZoom < 1.0:
 			targetZoom = 1.0
 		tween.interpolate_property(self, "zoom", Vector2(zoom.y,zoom.y), Vector2(targetZoom,targetZoom), adjustTime, tween.TRANS_SINE)
-		tween.interpolate_property(self, "scale", Vector2(zoom.y,zoom.y), Vector2(targetZoom,targetZoom), adjustTime, tween.TRANS_SINE)
 	tween.interpolate_property(self, "position", Vector2(position.x,position.y), Vector2(position.x,targetY), adjustTime, tween.TRANS_SINE)
 	tween.start()
+
+#TODO - Shake screen when pieces fall
+func shake(duration):
+	pass
 
 func zoom_amount_2_pos(zoomAmount):
 	return -(screenHeight/2)*zoomAmount+64
@@ -35,4 +38,5 @@ func set_target(value):
 	targetY = value
 	if targetY > zoom_amount_2_pos(1):
 		targetY = zoom_amount_2_pos(1)
-	update_camera()
+	if abs(targetY - position.y)>=16:
+		update_camera()

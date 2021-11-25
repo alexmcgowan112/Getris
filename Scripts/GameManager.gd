@@ -1,15 +1,21 @@
+#TODO - Highscores
+#TODO? - Alternative gamemodes
+
 extends Node2D
 
 var random = RandomNumberGenerator.new()
 
-var pieceSequence : Array
-var nextSequence : Array
+#TODO - regulated piece sequences (not too much or too little of certain types)
+var sequenceIndex : int = 0
+var pieceSequence : Array = [0,1,2,3,4,5,6]
+var nextSequence : Array = [0,1,2,3,4,5,6]
 
 var pieces : Array
 var max_height : float = 0
 
 var pieceScene = preload("res://Scenes/Piece.tscn")
 var pieceSpawnHeight : float = -640.0
+var currentPiece
 
 var lives : int = 3
 
@@ -26,44 +32,64 @@ func _ready():
 
 	random.randomize()
 
-	# for _i in range(7):
-	# 	pieceSequence.append(random.randi_range(0,6))
+	for i in range(7):
+		nextSequence[i] = random.randi_range(0,6)
+
+	create_sequence()
 
 	next_piece()
 
+# Creates sequences of pieces 7 at a time. If a sequence is missing any pieces, the next one is guaranteed to have those missing pieces.
+func create_sequence():
+	pieceSequence = nextSequence.duplicate()
+
+	var missing = [0,1,2,3,4,5,6]
+	
+	for piece in pieceSequence:
+		missing.erase(piece)
+
+	for i in range(7):
+		nextSequence[i] = random.randi_range(0,6)
+		missing.erase(nextSequence[i])
+
+		if 7-i <= missing.size():
+			missing.shuffle()
+			nextSequence[i] = missing[0]
+			missing.remove(0)
 
 func next_piece():
-	find_highest_piece(false)
+	call_deferred("find_highest_piece", false)
+	if currentPiece:
+		pieces.append(currentPiece)
 
-	var piece = pieceScene.instance().init(pieceSpawnHeight, random.randi_range(0,6))
+	var piece = pieceScene.instance().init(pieceSpawnHeight, pieceSequence[sequenceIndex])
+	currentPiece = piece
 	get_node("Pieces").add_child(piece)
-	pieces.append(piece)
 	piece.connect("piece_placed", self, "next_piece")
 	piece.connect("piece_fell", self, "find_highest_piece")
 	piece.connect("delete_piece", self, "delete_piece")
 
-	# if numPieces % 7 == 6:
-	# 	var tempSequence : Array
-	# 	var tooManyOf : Array
-	# 	var tooFewOf : Array
-	# 	for _i in range(7):
+	sequenceIndex += 1
+	if sequenceIndex >= 7:
+		create_sequence()
+		sequenceIndex = 0
 
 func find_highest_piece(checkAll: bool = true):
 	var numPieces = pieces.size()
-	if checkAll:
-		var highest : float = 0.0
-		for i in range(numPieces):
-			if !pieces[i].falling:
-				var pieceHeight = pieces[i].find_highest_point()
-				if pieceHeight < highest:
-					highest = pieceHeight
-		max_height = highest
-	else:
-		if numPieces>=1 and !pieces[numPieces-1].falling:
+	if numPieces>0:
+		if checkAll:
+			var highest : float = 0.0
+			for i in range(numPieces):
+				if !pieces[i].falling:
+					var pieceHeight = pieces[i].find_highest_point()
+					if pieceHeight < highest:
+						highest = pieceHeight
+			max_height = highest
+		else:
 			var pieceHeight = pieces[numPieces-1].find_highest_point()
 			if pieceHeight < max_height:
 				max_height = pieceHeight
-	
+
 	camera.set_target(max_height)
 	screenHeight = (get_viewport().size.y/get_viewport().size.x)*640
 	pieceSpawnHeight = camera.targetY-((screenHeight/2)*camera.zoom.y+64)
@@ -74,7 +100,7 @@ func delete_piece(piece):
 	if piece.falling:
 		call_deferred("next_piece")
 	find_highest_piece()
-	lives=ui.subtract_life()
+	lives=ui.subtract_life(camera)
 	if lives <= 0:
 		get_tree().paused = true
 		gameOverMenu.appear()

@@ -1,3 +1,5 @@
+#TODO? - better mobile controls
+
 extends "res://Scripts/Menu.gd"
 
 var lives : int = 3
@@ -15,11 +17,12 @@ func _process(_delta):
 	else:
 		update_lives()
 
-func subtract_life():
+func subtract_life(camera):
 	if liveCooldownTimer.is_stopped():
 		lives -= 1
 		if OS.get_name()=="Android" or OS.get_name()=="iOS":
 			Input.vibrate_handheld(200)
+		camera.shake(200)
 		update_lives()
 		liveCooldownTimer.start()
 	return lives

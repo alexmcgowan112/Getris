@@ -1,3 +1,6 @@
+#TODO - SFX
+#TODO - settings
+
 extends Node
 
 

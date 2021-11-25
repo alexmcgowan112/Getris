@@ -1,3 +1,7 @@
+#TODO - sprites for pieces
+#TODO - special pieces (big, icy, unrotatable, etc)
+
+
 extends RigidBody2D
 
 signal piece_placed
@@ -8,6 +12,7 @@ var random = RandomNumberGenerator.new()
 
 var pieceShape : int
 var polygon
+var color
 onready var sprite : Node = get_node("Polygon")
 onready var collider : Node = get_node("Collider")
 
@@ -30,13 +35,15 @@ var onScreen = true
 
 func _ready():
 	sprite.call_deferred("set_polygon",polygon)
+	sprite.call_deferred("set_color",color)
+	sprite.texture.noise.call_deferred("set_seed",random.randi())
 	collider.call_deferred("set_polygon",polygon)
 	trajectoryLine.width = rightmost_point*2
 	linear_velocity.y = fall_speed
 	gravity_scale = 0
 	add_to_group("Pieces")
 
-func init(spawn_height, shape = -1):
+func init(spawn_height, shape = -1, property = 0):
 	position.y = spawn_height
 	fall_speed = spawn_height/-10
 
@@ -47,12 +54,13 @@ func init(spawn_height, shape = -1):
 
 	var vertices
 	match shape:
-		#Square
+		#O (Square)
 		0:
 			vertices = [Vector2(-32,-32),Vector2(32,-32),Vector2(32,32),Vector2(-32,32)]
 			leftmost_point = -32
 			rightmost_point = 32
-		#Line
+			color = Color.cyan
+		#I (Line)
 		1:
 			#Standard
 			#vertices = [Vector2(-64,-32),Vector2(64,-16),Vector2(64,0),Vector2(-64,0)]
@@ -60,32 +68,37 @@ func init(spawn_height, shape = -1):
 			vertices = [Vector2(-64,-16),Vector2(64,-16),Vector2(64,16),Vector2(-64,16)]
 			leftmost_point = -64
 			rightmost_point = 64
+			color = Color.yellow
 		#T
 		2:
 			vertices = [Vector2(-48,16),Vector2(48,16),Vector2(48,-16),Vector2(16,-16),Vector2(16,-48),Vector2(-16,-48),Vector2(-16,-16),Vector2(-48,-16)]
-			
+			color = Color.mediumpurple
 		#L
 		3:
 			vertices = [Vector2(-48,16),Vector2(48,16),Vector2(48,-16),Vector2(-16,-16),Vector2(-16,-48),Vector2(-48,-48)]
-			
-		#Backwards L
+			color = Color.orange
+		#J
 		4:
 			vertices = [Vector2(48,16),Vector2(48,-48),Vector2(16,-48),Vector2(16,-16),Vector2(-48,-16),Vector2(-48,16)]
-			
+			color = Color.blue
 		#S
 		5:
 			#Standard
 			#vertices = [Vector2(-16,16),Vector2(-16,-16),Vector2(48,-16),Vector2(48,16),Vector2(16,16),Vector2(16,48),Vector2(-48,48),Vector2(-48,16)]
 			#Centered
 			vertices = [Vector2(-16,0),Vector2(-16,-32),Vector2(48,-32),Vector2(48,0),Vector2(16,0),Vector2(16,32),Vector2(-48,32),Vector2(-48,0)]
-			
+			color = Color.green
 		#Z
 		6:
 			#Standard
 			#vertices = [Vector2(-48,-16),Vector2(16,-16),Vector2(16,16),Vector2(48,16),Vector2(48,48),Vector2(-16,48),Vector2(-16,16),Vector2(-48,16)]
 			#Centered
 			vertices = [Vector2(-16,0),Vector2(-16,32),Vector2(48,32),Vector2(48,0),Vector2(16,0),Vector2(16,-32),Vector2(-48,-32),Vector2(-48,0)]
-			
+			color = Color.red
+	
+	
+	color = color.lightened(0.5)
+	
 	if leftmost_point == 0:
 		leftmost_point = -48
 		rightmost_point = 48
@@ -131,8 +144,8 @@ func _integrate_forces(state):
 				var moveAmount : int = (4-abs(frameNumMove)) * moveDirection
 				if test_motion(Vector2(moveAmount,0),false):
 					while test_motion(Vector2(moveAmount,0),false) and moveAmount != 0:
-						moveAmount -= moveAmount/abs(moveAmount)
-					collide(null)
+						moveAmount -= sign(moveAmount)
+					collide(state)
 				state.transform.origin.x += moveAmount
 				frameNumMove+=1
 			else:
@@ -155,10 +168,13 @@ func _integrate_forces(state):
 					state.angular_velocity = 0
 				if frameNumSpin >= 20:
 					spinDirection = 0
-					rotation_degrees = round(rotation_degrees)
+					state.transform.x.x = round(state.transform.x.x)
+					state.transform.x.y = round(state.transform.x.y)
+					state.transform.y.x = round(state.transform.y.x)
+					state.transform.y.y = round(state.transform.y.y)
 				frameNumSpin += 1
 			find_edges()
-			# position fall trajectory outline
+			# position fall trajectory
 			if falling:
 				if pieceShape == 2:
 					trajectoryLine.global_position.x = (leftmost_point+rightmost_point)/2
@@ -169,50 +185,56 @@ func _integrate_forces(state):
 				trajectoryLine.global_rotation_degrees = 0
 		else:
 			drop(state)
-			collide(null)
 	elif placedPosition.y < position.y-15:
 		emit_signal("piece_fell")
 		placedPosition = position
 	if position.y > 128:
 		emit_signal("delete_piece", self)
+	if state.get_contact_count() > 0:
+		collide(state)
 
-func collide(_body: Node):
+func collide(state):
 	if falling:
 		trajectoryLine.queue_free()
-		linear_velocity.y = 0
-		linear_velocity.x = moveDirection*abs(moveDirection)*50
+		state.linear_velocity.y = 0
+		state.linear_velocity.x = moveDirection*abs(moveDirection)*50
 		if test_motion(Vector2(0,1)):
-			linear_velocity.x = 0
-		angular_velocity /= 2
+			state.linear_velocity.x = 0
+		state.angular_velocity /= 2
 		gravity_scale = 1.0
 		falling = false
-		placedPosition = position
+		placedPosition = state.transform.origin
+		global_position = state.transform.origin
 		set_deferred("contact_monitor", false)
 		call_deferred("emit_signal","piece_placed")
+		collider.set_deferred("scale",Vector2(1,1))
 
 func drop(state):
 	var moveDistance : int = -position.y+320
 	while test_motion(Vector2(0,moveDistance),false):
 		moveDistance-=1
 	state.transform.origin.y += moveDistance
-	state.linear_velocity.y = 0
+	call_deferred("collide", state)
 
 func find_highest_point():
-	var highest_point : float = 0
-	for point in polygon:
-		var global_y_pos = to_global(point).y
-		if global_y_pos < highest_point:
-			highest_point = global_y_pos
-	return highest_point
+	if is_inside_tree():
+		var highest_point : float = 0
+		for point in polygon:
+			var global_y_pos = to_global(point).y
+			if global_y_pos < highest_point:
+				highest_point = global_y_pos
+		return highest_point
+	return 0
 
 func find_edges():
 	var left : float = global_position.x
 	var right : float = global_position.x
-	for i in range(polygon.size()):
-		if to_global(polygon[i]).x < left:
-			left = to_global(polygon[i]).x
-		if to_global(polygon[i]).x > right:
-			right = to_global(polygon[i]).x
+	for point in polygon:
+		var global_x_pos = to_global(point).x
+		if global_x_pos < left:
+			left = global_x_pos
+		if global_x_pos > right:
+			right = global_x_pos
 	leftmost_point = left
 	rightmost_point = right
 
