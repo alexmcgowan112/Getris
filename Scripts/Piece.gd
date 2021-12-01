@@ -13,8 +13,8 @@ var random = RandomNumberGenerator.new()
 var pieceShape : int
 var polygon
 var color
-onready var sprite : Node = get_node("Polygon")
 onready var collider : Node = get_node("Collider")
+onready var sprite : Node = collider.get_node("Polygon")
 
 onready var trajectoryLine = get_node("FallTrajectory")
 
@@ -175,10 +175,7 @@ func _integrate_forces(state):
 				state.angular_velocity = 0
 				if frameNumSpin >= 20:
 					spinDirection = 0
-					state.transform.x.x = round(state.transform.x.x)
-					state.transform.x.y = round(state.transform.x.y)
-					state.transform.y.x = round(state.transform.y.x)
-					state.transform.y.y = round(state.transform.y.y)
+					state.transform = state.transform.orthonormalized()
 				frameNumSpin += 1
 			
 			# position trajectory outline
@@ -212,6 +209,21 @@ func collide(state):
 		state.angular_velocity /= 2
 		gravity_scale = 1.0
 		falling = false
+		match pieceShape:
+			2:
+				collider.position.y = 4
+				state.transform = state.transform.translated(Vector2(0,-4))
+			3:
+				collider.position = Vector2(4,4)
+				print(state.transform.origin)
+				print(state.transform.translated(Vector2(-4,-4)).origin)
+				state.transform = state.transform.translated(Vector2(-4,-4))
+			4:
+				collider.position = Vector2(-4,4)
+				print(state.transform.origin)
+				print(state.transform.translated(Vector2(4,-4)).origin)
+				state.transform = state.transform.translated(Vector2(4,-4))
+
 		placedPosition = state.transform.origin
 		global_position = state.transform.origin
 		set_deferred("contact_monitor", false)
