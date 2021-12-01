@@ -1,4 +1,4 @@
-#TODO - sprites for pieces
+#TODO? - sprites for pieces
 #TODO - special pieces (big, icy, unrotatable, etc)
 
 
@@ -123,11 +123,9 @@ func _integrate_forces(state):
 				drop(state)
 				return
 			if Input.is_action_pressed("down"):
-				if linear_velocity.y != fall_speed*3:
-					linear_velocity.y = fall_speed*3
+				linear_velocity.y = fall_speed*3
 			else:
-				if linear_velocity.y != fall_speed:
-					linear_velocity.y = fall_speed
+				linear_velocity.y = fall_speed
 			
 			# horizontal movement
 			if moveDirection == 0:
@@ -174,8 +172,7 @@ func _integrate_forces(state):
 				state.angular_velocity = spinDirection * (5-abs(frameNumSpin)) * 3.834
 				frameNumSpin += 1
 			else:
-				if state.angular_velocity != 0:
-					state.angular_velocity = 0
+				state.angular_velocity = 0
 				if frameNumSpin >= 20:
 					spinDirection = 0
 					state.transform.x.x = round(state.transform.x.x)

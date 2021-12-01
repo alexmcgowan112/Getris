@@ -1,11 +1,9 @@
-#TODO - Highscores (pieces placed in a small area and/or on a small platform, height reached, time to reach specific height, etc)
-#TODO? - Alternative gamemodes
+#TODO? - Alternative gamemodes (small platform, difficult pieces, etc)
 
 extends Node2D
 
 var random = RandomNumberGenerator.new()
 
-#TODO - regulated piece sequences (not too much or too little of certain types)
 var sequenceIndex : int = 0
 var pieceSequence : Array = [0,1,2,3,4,5,6]
 var nextSequence : Array = [0,1,2,3,4,5,6]
@@ -26,9 +24,10 @@ onready var ui = get_node("UI")
 onready var pauseMenu = get_node("Menus/PauseMenu")
 onready var gameOverMenu = get_node("Menus/GameOverMenu")
 
-
 func _ready():
 	register_buttons()
+
+	set_highscore_line()
 
 	random.randomize()
 
@@ -43,6 +42,16 @@ func register_buttons():
 	var buttons = get_tree().get_nodes_in_group("Buttons")
 	for button in buttons:
 		button.connect("pressed", self, "_on_button_pressed", [button.name])
+
+func set_highscore_line():
+	if ui.highscore == 0:
+		$HighscoreLine.queue_free()
+	else:
+		$HighscoreLine.rect_position.y = ui.highscore*-32-4
+		yield(camera.tween, "tween_completed")
+		$HighscoreLine.rect_position.x = -480
+		$HighscoreLine.rect_size.x = 960
+		$HighscoreLine/Label.visible = true
 
 
 func _process(delta):
@@ -83,7 +92,6 @@ func find_highest_piece(checkAll: bool = true):
 			var pieceHeight = pieces[numPieces-1].find_highest_point()
 			if pieceHeight < max_height:
 				max_height = pieceHeight
-
 	ui.update_score(max_height)
 	camera.set_target(max_height)
 	screenHeight = (get_viewport().size.y/get_viewport().size.x)*640
@@ -139,7 +147,7 @@ func _on_button_pressed(name):
 
 func clear_screen():
 	if not camera.tween.is_active():
-		camera.tween.interpolate_property(camera, "offset:x", 0, 640, 0.4, Tween.TRANS_BACK)
+		camera.tween.interpolate_property(camera, "offset:x", 0, 960, 0.4, Tween.TRANS_BACK)
 		ui.disappear()
 		pauseMenu.disappear()
 		gameOverMenu.disappear()

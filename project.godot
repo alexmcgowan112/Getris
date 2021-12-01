@@ -16,6 +16,10 @@ boot_splash/image="res://Assets/Icons/BLANK_ICON.png"
 boot_splash/bg_color=Color( 0.239216, 0.423529, 0.415686, 1 )
 config/icon="res://Assets/Icons/icon.png"
 
+[autoload]
+
+Settings="*res://Scripts/Settings.gd"
+
 [debug]
 
 gdscript/warnings/unused_argument=false

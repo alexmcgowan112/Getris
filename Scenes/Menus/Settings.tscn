@@ -28,9 +28,7 @@ text = "Settings"
 margin_top = 230.0
 margin_bottom = 330.0
 
-[node name="Sound" type="TextureButton" parent="MarginContainer/VBoxContainer/Buttons" index="0" groups=[
-"Buttons",
-]]
+[node name="Sound" type="TextureButton" parent="MarginContainer/VBoxContainer/Buttons" index="0" groups=["Buttons"]]
 margin_left = 168.0
 margin_right = 268.0
 margin_bottom = 100.0
@@ -38,9 +36,7 @@ toggle_mode = true
 texture_normal = ExtResource( 3 )
 texture_pressed = ExtResource( 4 )
 
-[node name="Music" type="TextureButton" parent="MarginContainer/VBoxContainer/Buttons" index="1" groups=[
-"Buttons",
-]]
+[node name="Music" type="TextureButton" parent="MarginContainer/VBoxContainer/Buttons" index="1" groups=["Buttons"]]
 margin_left = 332.0
 margin_right = 432.0
 margin_bottom = 100.0
@@ -54,9 +50,7 @@ margin_right = 600.0
 margin_bottom = 505.0
 alignment = 1
 
-[node name="Home" type="TextureButton" parent="MarginContainer/VBoxContainer/Buttons2" index="0" groups=[
-"Buttons",
-]]
+[node name="Home" type="TextureButton" parent="MarginContainer/VBoxContainer/Buttons2" index="0" groups=["Buttons"]]
 margin_left = 250.0
 margin_right = 350.0
 margin_bottom = 100.0

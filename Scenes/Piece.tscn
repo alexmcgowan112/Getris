@@ -33,8 +33,7 @@ polygon = PoolVector2Array( -32, -32, 32, -32, 32, 32, -32, 32 )
 antialiased = true
 texture = SubResource( 3 )
 texture_scale = Vector2( 0.98, 0.98 )
-invert_border = 10.0
-polygon = PoolVector2Array( -32, 32, -32, -32, 32, -32, 32, 32 )
+polygon = PoolVector2Array( -32, 32, -32, -32, 32, -32, 32, -1.38969, 32, 32 )
 
 [node name="FallTrajectory" type="Line2D" parent="."]
 show_behind_parent = true

@@ -1,10 +1,15 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://Scripts/Camera.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/GameManager.gd" type="Script" id=2]
 [ext_resource path="res://Scenes/UI.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Scenes/Menus/GameOverMenu.tscn" type="PackedScene" id=4]
 [ext_resource path="res://Scenes/Menus/PauseMenu.tscn" type="PackedScene" id=5]
+[ext_resource path="res://Assets/UI/dashed_line_texture.png" type="Texture" id=6]
+[ext_resource path="res://Assets/Fonts/Xolonium-Regular.ttf" type="DynamicFontData" id=7]
+
+[sub_resource type="DynamicFont" id=5]
+font_data = ExtResource( 7 )
 
 [sub_resource type="PhysicsMaterial" id=3]
 friction = 0.8
@@ -18,7 +23,7 @@ script = ExtResource( 2 )
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2( 0, -256 )
-offset = Vector2( -496, 0 )
+offset = Vector2( -640, 0 )
 current = true
 limit_bottom = 64
 script = ExtResource( 1 )
@@ -40,6 +45,31 @@ transform = Transform2D( 1, 0, 0, 1, 640, 0 )
 layer = 3
 offset = Vector2( 640, 0 )
 transform = Transform2D( 1, 0, 0, 1, 640, 0 )
+
+[node name="HighscoreLine" type="TextureRect" parent="."]
+margin_left = -320.0
+margin_top = 128.0
+margin_right = 320.0
+margin_bottom = 132.0
+texture = ExtResource( 6 )
+stretch_mode = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="HighscoreLine"]
+visible = false
+margin_left = 40.0
+margin_top = -23.0
+margin_right = 90.0
+margin_bottom = 27.0
+custom_fonts/font = SubResource( 5 )
+text = "High
+Score"
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="Ground" type="StaticBody2D" parent="."]
 pause_mode = 1

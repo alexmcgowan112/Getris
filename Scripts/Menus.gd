@@ -1,5 +1,4 @@
 #TODO - SFX
-#TODO - settings
 
 extends Node
 
@@ -13,17 +12,28 @@ func _ready():
 func register_buttons():
 	var buttons = get_tree().get_nodes_in_group("Buttons")
 	for button in buttons:
-		button.connect("pressed", self, "_on_button_pressed", [button.name])
+		button.connect("pressed", self, "_on_button_pressed", [button])
+		
+		match button.name:
+			"Music":
+				button.pressed = !Settings.enable_music
+			"Sound":
+				button.pressed = !Settings.enable_sound
 
 
-func _on_button_pressed(name):
-	match name:
+func _on_button_pressed(button):
+	match button.name:
 		"Home":
+			Settings.save_settings()
 			change_screen($MainMenu)
 		"Settings":
 			change_screen($Settings)
 		"Play":
 			change_screen(null)
+		"Music":
+			Settings.enable_music = !button.pressed
+		"Sound":
+			Settings.enable_sound = !button.pressed
 
 func change_screen(newScene):
 	if currentScene:

@@ -9,7 +9,7 @@ onready var tween = get_node("Tween")
 onready var screenHeight = (get_viewport().size.y/get_viewport().size.x)*640
 
 func _ready():
-	tween.interpolate_property(self, "offset:x", -496, 0, 0.5, Tween.TRANS_BACK)
+	tween.interpolate_property(self, "offset:x", -640, 0, 0.5, Tween.TRANS_BACK)
 	tween.start()
 
 
