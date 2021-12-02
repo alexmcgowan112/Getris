@@ -51,7 +51,6 @@ func set_highscore_line():
 		yield(camera.tween, "tween_completed")
 		$HighscoreLine.rect_position.x = -480
 		$HighscoreLine.rect_size.x = 960
-		$HighscoreLine/Label.visible = true
 
 
 func _process(delta):

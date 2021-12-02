@@ -215,13 +215,9 @@ func collide(state):
 				state.transform = state.transform.translated(Vector2(0,-4))
 			3:
 				collider.position = Vector2(4,4)
-				print(state.transform.origin)
-				print(state.transform.translated(Vector2(-4,-4)).origin)
 				state.transform = state.transform.translated(Vector2(-4,-4))
 			4:
 				collider.position = Vector2(-4,4)
-				print(state.transform.origin)
-				print(state.transform.translated(Vector2(4,-4)).origin)
 				state.transform = state.transform.translated(Vector2(4,-4))
 
 		placedPosition = state.transform.origin

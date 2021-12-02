@@ -64,11 +64,11 @@ __meta__ = {
 }
 
 [node name="LiveCooldownTimer" type="Timer" parent="LostLives"]
-wait_time = 1.6
+wait_time = 1.8
 one_shot = true
 
 [node name="BlinkTimer" type="Timer" parent="LostLives/LiveCooldownTimer"]
-wait_time = 0.4
+wait_time = 0.3
 one_shot = true
 
 [node name="Score" type="Label" parent="."]
