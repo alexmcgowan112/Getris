@@ -28,6 +28,7 @@ offset = Vector2( -640, 0 )
 current = true
 limit_bottom = 64
 script = ExtResource( 1 )
+max_offset = Vector2( 32, 16 )
 
 [node name="Tween" type="Tween" parent="Camera2D"]
 
@@ -75,18 +76,17 @@ __meta__ = {
 
 [node name="Ground" type="StaticBody2D" parent="."]
 pause_mode = 1
-position = Vector2( 0, 64 )
 scale = Vector2( 0.995, 1 )
 z_index = 1
 physics_material_override = SubResource( 3 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Ground"]
-position = Vector2( 0, 436 )
+position = Vector2( 0, 500 )
 shape = SubResource( 4 )
 
 [node name="Polygon2D" type="Polygon2D" parent="Ground"]
 color = Color( 0.694118, 0.694118, 0.694118, 1 )
-polygon = PoolVector2Array( -160, -64, 160, -64, 160, 0, -160, 0 )
+polygon = PoolVector2Array( -160, 0, 160, 0, 160, 128, -160, 128 )
 
 [node name="Pieces" type="Node" parent="."]
 pause_mode = 1

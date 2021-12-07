@@ -19,6 +19,8 @@ func register_buttons():
 				button.pressed = !Settings.enable_music
 			"Sound":
 				button.pressed = !Settings.enable_sound
+			"Vibrate":
+				button.pressed = !Settings.enable_vibration
 
 
 func _on_button_pressed(button):
@@ -34,6 +36,8 @@ func _on_button_pressed(button):
 			Settings.enable_music = !button.pressed
 		"Sound":
 			Settings.enable_sound = !button.pressed
+		"Vibrate":
+			Settings.enable_vibration = !button.pressed
 
 func change_screen(newScene):
 	if currentScene:

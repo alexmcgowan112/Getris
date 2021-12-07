@@ -55,9 +55,10 @@ func update_score(height = 0):
 func subtract_life(camera):
 	if liveCooldownTimer.is_stopped():
 		lives -= 1
-		if OS.get_name()=="Android" or OS.get_name()=="iOS":
-			Input.vibrate_handheld(200)
-		camera.shake(200)
+		if Settings.enable_vibration:
+			if OS.get_name()=="Android" or OS.get_name()=="iOS":
+				Input.vibrate_handheld(200)
+			camera.add_trauma(1)
 		update_lives()
 		liveCooldownTimer.start()
 		liveCooldownTimer.get_node("BlinkTimer").start()
