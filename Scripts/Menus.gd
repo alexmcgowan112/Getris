@@ -1,5 +1,3 @@
-#TODO - SFX
-
 extends Node
 
 
@@ -39,6 +37,9 @@ func _on_button_pressed(button):
 		"Vibrate":
 			Settings.enable_vibration = !button.pressed
 
+	if Settings.enable_sound:
+		AudioController.play_button_click()
+
 func change_screen(newScene):
 	if currentScene:
 		currentScene.disappear()
@@ -48,4 +49,5 @@ func change_screen(newScene):
 		yield(currentScene.tween, "tween_completed")
 	else:
 		yield(currentScene.tween, "tween_completed")
+		AudioController.change_music()
 		get_tree().change_scene("res://Scenes/GameScene.tscn")

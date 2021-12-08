@@ -147,6 +147,8 @@ func _integrate_forces(state):
 						moveDirection = 1
 				if moveDirection != 0:
 					frameNumMove = -3
+					if Settings.enable_sound:
+						AudioController.play_whoosh()
 			elif frameNumMove < 4:
 				var moveAmount : int = (4-abs(frameNumMove)) * moveDirection
 				if test_motion(Vector2(moveAmount,0),false):
@@ -164,10 +166,12 @@ func _integrate_forces(state):
 			if spinDirection == 0:
 				if Input.is_action_pressed("rotate_left"):
 					spinDirection = -1
-					frameNumSpin = -4
 				if Input.is_action_pressed("rotate_right"):
 					spinDirection = 1
+				if spinDirection != 0:
 					frameNumSpin = -4
+					if Settings.enable_sound:
+						AudioController.play_whoosh()
 			elif frameNumSpin < 5:
 				state.angular_velocity = spinDirection * (5-abs(frameNumSpin)) * 3.834
 				frameNumSpin += 1
@@ -203,6 +207,8 @@ func _integrate_forces(state):
 
 func collide(state):
 	if falling:
+		if Settings.enable_sound:
+			AudioController.play_collision_sound()
 		trajectoryLine.queue_free()
 		state.linear_velocity.y = 0
 		state.linear_velocity.x = moveDirection*abs(moveDirection)*50

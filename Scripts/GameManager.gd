@@ -126,6 +126,9 @@ func delete_piece(piece):
 
 
 func _on_button_pressed(name):
+	if Settings.enable_sound:
+		AudioController.play_button_click()
+
 	match name:
 		"Pause":
 			get_tree().paused = true

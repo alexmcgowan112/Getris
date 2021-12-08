@@ -19,6 +19,7 @@ config/icon="res://Assets/Icons/icon.png"
 [autoload]
 
 Settings="*res://Scripts/Settings.gd"
+AudioController="*res://Scenes/AudioController.tscn"
 
 [debug]
 
