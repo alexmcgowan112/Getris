@@ -32,6 +32,10 @@ func _on_button_pressed(button):
 			change_screen(null)
 		"Music":
 			Settings.enable_music = !button.pressed
+			if Settings.enable_music:
+				AudioController.play_music()
+			else:
+				AudioController.stop_music()
 		"Sound":
 			Settings.enable_sound = !button.pressed
 		"Vibrate":

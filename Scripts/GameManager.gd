@@ -143,6 +143,7 @@ func _on_button_pressed(name):
 			get_tree().reload_current_scene()
 		"Home":
 			clear_screen()
+			AudioController.change_music()
 			yield(camera.tween, "tween_completed")
 			get_tree().paused = false
 			get_tree().change_scene("res://Scenes/Menus.tscn")
