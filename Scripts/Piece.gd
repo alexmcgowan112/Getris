@@ -1,5 +1,5 @@
 #TODO? - sprites for pieces
-#TODO - special pieces (big, icy, unrotatable, etc)
+#TODO - special pieces (big, low friction, unrotatable, etc) (a slight wind could also make it more fun to play)
 
 
 extends RigidBody2D
@@ -207,8 +207,6 @@ func _integrate_forces(state):
 
 func collide(state):
 	if falling:
-		if Settings.enable_sound:
-			AudioController.play_collision_sound()
 		trajectoryLine.queue_free()
 		state.linear_velocity.y = 0
 		state.linear_velocity.x = moveDirection*abs(moveDirection)*50

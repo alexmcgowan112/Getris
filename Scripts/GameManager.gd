@@ -1,4 +1,4 @@
-#TODO? - Alternative gamemodes (small platform, difficult pieces, etc)
+#TODO - Alternative gamemodes (small platform, difficult pieces, etc)
 
 extends Node2D
 

@@ -53,7 +53,6 @@ var noise_y = 0
 
 func _process(delta):
 	if trauma:
-		print(trauma)
 		trauma = max(trauma - decay * delta, 0)
 		shake()
 
@@ -65,4 +64,5 @@ func shake():
 	offset.y = max_offset.y * amount * noise.get_noise_2d(noise.seed*3, noise_y)
 
 func add_trauma(amount):
+	AudioController.play_rumble()
 	trauma = min(trauma + amount, 1.0)

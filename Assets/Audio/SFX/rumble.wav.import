@@ -2,12 +2,12 @@
 
 importer="wav"
 type="AudioStreamSample"
-path="res://.import/collision.wav-15223449d83f2cb06b0fc3ebbba6e07c.sample"
+path="res://.import/rumble.wav-a82cc936af3b0d76e7317f9ddebbe7e5.sample"
 
 [deps]
 
-source_file="res://Assets/Audio/SFX/collision.wav"
-dest_files=[ "res://.import/collision.wav-15223449d83f2cb06b0fc3ebbba6e07c.sample" ]
+source_file="res://Assets/Audio/SFX/rumble.wav"
+dest_files=[ "res://.import/rumble.wav-a82cc936af3b0d76e7317f9ddebbe7e5.sample" ]
 
 [params]
 

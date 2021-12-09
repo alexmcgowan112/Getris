@@ -1,7 +1,10 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://Scripts/AudioController.gd" type="Script" id=1]
 [ext_resource path="res://Assets/Audio/Music/Light-Puzzles.ogg" type="AudioStream" id=2]
+[ext_resource path="res://Assets/Audio/SFX/whoosh.wav" type="AudioStream" id=3]
+[ext_resource path="res://Assets/Audio/SFX/rumble.wav" type="AudioStream" id=5]
+[ext_resource path="res://Assets/Audio/SFX/menu_click.wav" type="AudioStream" id=6]
 
 [sub_resource type="Animation" id=1]
 resource_name = "Switch Music"
@@ -44,4 +47,13 @@ volume_db = -10.0
 root_node = NodePath("../..")
 "anims/Switch Music" = SubResource( 1 )
 
-[node name="SFX" type="AudioStreamPlayer" parent="."]
+[node name="SFX" type="Node" parent="."]
+
+[node name="Button Click" type="AudioStreamPlayer" parent="SFX"]
+stream = ExtResource( 6 )
+
+[node name="Whoosh" type="AudioStreamPlayer" parent="SFX"]
+stream = ExtResource( 3 )
+
+[node name="Rumble" type="AudioStreamPlayer" parent="SFX"]
+stream = ExtResource( 5 )
