@@ -93,7 +93,7 @@ func find_highest_piece(checkAll: bool = true):
 			max_height = min(pieces[numPieces-1].find_highest_point(),max_height)
 	ui.update_score(max_height)
 	camera.set_target(max_height)
-	pieceSpawnHeight = camera.targetY-((screenHeight/2)*camera.zoom.y+64)
+	pieceSpawnHeight = camera.targetY-((screenHeight/2)*camera.pos_2_zoom_amount(camera.targetY)+64)
 
 func next_piece():
 	call_deferred("find_highest_piece", false)
