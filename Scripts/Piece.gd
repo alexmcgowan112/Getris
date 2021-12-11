@@ -35,8 +35,12 @@ var placedPosition : Vector2 = Vector2()
 
 var onScreen = true
 
+var windDirection = Vector2()
 
-func init(spawn_height, shape = -1, property = 0):
+
+func init(spawn_height, shape = -1, wind = Vector2()):
+	windDirection = wind
+
 	position.y = spawn_height
 	fall_speed = spawn_height/-10
 
@@ -45,48 +49,47 @@ func init(spawn_height, shape = -1, property = 0):
 		shape = random.randi_range(0,6)
 	pieceShape = shape
 
-	var vertices
 	match shape:
 		#O (Square)
 		0:
-			vertices = [Vector2(-32,-32),Vector2(32,-32),Vector2(32,32),Vector2(-32,32)]
+			polygon = PoolVector2Array([Vector2(-32,-32),Vector2(32,-32),Vector2(32,32),Vector2(-32,32)])
 			leftmost_point = -32
 			rightmost_point = 32
 			color = Color.cyan
 		#I (Line)
 		1:
 			#Standard
-			#vertices = [Vector2(-64,-32),Vector2(64,-16),Vector2(64,0),Vector2(-64,0)]
+			#polygon = PoolVector2Array([Vector2(-64,-32),Vector2(64,-16),Vector2(64,0),Vector2(-64,0)])
 			#Centered
-			vertices = [Vector2(-64,-16),Vector2(64,-16),Vector2(64,16),Vector2(-64,16)]
+			polygon = PoolVector2Array([Vector2(-64,-16),Vector2(64,-16),Vector2(64,16),Vector2(-64,16)])
 			leftmost_point = -64
 			rightmost_point = 64
 			color = Color.yellow
 		#T
 		2:
-			vertices = [Vector2(-48,16),Vector2(48,16),Vector2(48,-16),Vector2(16,-16),Vector2(16,-48),Vector2(-16,-48),Vector2(-16,-16),Vector2(-48,-16)]
+			polygon = PoolVector2Array([Vector2(-48,16),Vector2(48,16),Vector2(48,-16),Vector2(16,-16),Vector2(16,-48),Vector2(-16,-48),Vector2(-16,-16),Vector2(-48,-16)])
 			color = Color.mediumpurple
 		#L
 		3:
-			vertices = [Vector2(-48,16),Vector2(48,16),Vector2(48,-16),Vector2(-16,-16),Vector2(-16,-48),Vector2(-48,-48)]
+			polygon = PoolVector2Array([Vector2(-48,16),Vector2(48,16),Vector2(48,-16),Vector2(-16,-16),Vector2(-16,-48),Vector2(-48,-48)])
 			color = Color.orange
 		#J
 		4:
-			vertices = [Vector2(48,16),Vector2(48,-48),Vector2(16,-48),Vector2(16,-16),Vector2(-48,-16),Vector2(-48,16)]
+			polygon = PoolVector2Array([Vector2(48,16),Vector2(48,-48),Vector2(16,-48),Vector2(16,-16),Vector2(-48,-16),Vector2(-48,16)])
 			color = Color.blue
 		#S
 		5:
 			#Standard
-			#vertices = [Vector2(-16,16),Vector2(-16,-16),Vector2(48,-16),Vector2(48,16),Vector2(16,16),Vector2(16,48),Vector2(-48,48),Vector2(-48,16)]
+			#polygon = PoolVector2Array([Vector2(-16,16),Vector2(-16,-16),Vector2(48,-16),Vector2(48,16),Vector2(16,16),Vector2(16,48),Vector2(-48,48),Vector2(-48,16)])
 			#Centered
-			vertices = [Vector2(-16,0),Vector2(-16,-32),Vector2(48,-32),Vector2(48,0),Vector2(16,0),Vector2(16,32),Vector2(-48,32),Vector2(-48,0)]
+			polygon = PoolVector2Array([Vector2(-16,0),Vector2(-16,-32),Vector2(48,-32),Vector2(48,0),Vector2(16,0),Vector2(16,32),Vector2(-48,32),Vector2(-48,0)])
 			color = Color.green
 		#Z
 		6:
 			#Standard
-			#vertices = [Vector2(-48,-16),Vector2(16,-16),Vector2(16,16),Vector2(48,16),Vector2(48,48),Vector2(-16,48),Vector2(-16,16),Vector2(-48,16)]
+			#polygon = PoolVector2Array([Vector2(-48,-16),Vector2(16,-16),Vector2(16,16),Vector2(48,16),Vector2(48,48),Vector2(-16,48),Vector2(-16,16),Vector2(-48,16)]
 			#Centered
-			vertices = [Vector2(-16,0),Vector2(-16,32),Vector2(48,32),Vector2(48,0),Vector2(16,0),Vector2(16,-32),Vector2(-48,-32),Vector2(-48,0)]
+			polygon = PoolVector2Array([Vector2(-16,0),Vector2(-16,32),Vector2(48,32),Vector2(48,0),Vector2(16,0),Vector2(16,-32),Vector2(-48,-32),Vector2(-48,0)])
 			color = Color.red
 	
 	color = color.lightened(0.5)
@@ -95,7 +98,6 @@ func init(spawn_height, shape = -1, property = 0):
 		leftmost_point = -48
 		rightmost_point = 48
 	
-	polygon = PoolVector2Array(vertices)
 	return self
 
 func _ready():
@@ -120,12 +122,14 @@ func _integrate_forces(state):
 		if onScreen:
 			# downward movement
 			if Input.is_action_just_pressed("drop"):
+				if Settings.enable_sound:
+					AudioController.play_whoosh()
 				drop(state)
 				return
 			if Input.is_action_pressed("down"):
-				linear_velocity.y = fall_speed*3
+				linear_velocity.y = min(fall_speed*3,linear_velocity.y+8)
 			else:
-				linear_velocity.y = fall_speed
+				linear_velocity.y = max(fall_speed,linear_velocity.y-8)
 			
 			# horizontal movement
 			if moveDirection == 0:
@@ -194,13 +198,14 @@ func _integrate_forces(state):
 				trajectoryLine.global_rotation_degrees = 0
 				
 				#check if the piece has or is about to collide
-				if test_motion(Vector2(0,1),false) or state.get_contact_count() > 0:
+				if test_motion(Vector2(0,0.64),false) or state.get_contact_count() > 0:
 					collide(state)
 		
 	# if the piece is already placed, check if it has moved
 	elif placedPosition.y < position.y-15:
 		emit_signal("piece_fell")
 		placedPosition = position
+		applied_force = windDirection*position.y/-32
 	# check if the piece has fallen below the world
 	if position.y > 128:
 		emit_signal("delete_piece", self)
@@ -209,7 +214,10 @@ func collide(state):
 	if falling:
 		trajectoryLine.queue_free()
 		state.linear_velocity.y = 0
-		state.linear_velocity.x = moveDirection*abs(moveDirection)*50
+		if test_motion(Vector2(0,0.64),false):
+			state.linear_velocity.x = 0
+		else:
+			state.linear_velocity.x = moveDirection*abs(moveDirection)*50
 		state.angular_velocity /= 2
 		gravity_scale = 1.0
 		falling = false
@@ -226,6 +234,7 @@ func collide(state):
 
 		placedPosition = state.transform.origin
 		global_position = state.transform.origin
+		applied_force = windDirection*position.y/-32
 		set_deferred("contact_monitor", false)
 		call_deferred("emit_signal","piece_placed")
 
@@ -242,9 +251,7 @@ func find_highest_point():
 	if is_inside_tree():
 		var highest_point : float = 0
 		for point in polygon:
-			var global_y_pos = to_global(point).y
-			if global_y_pos < highest_point:
-				highest_point = global_y_pos
+			highest_point = min(to_global(point).y,highest_point)
 		return highest_point
 	return 0
 
@@ -253,10 +260,8 @@ func find_edges():
 	var right : float = global_position.x
 	for point in polygon:
 		var global_x_pos = to_global(point).x
-		if global_x_pos < left:
-			left = global_x_pos
-		if global_x_pos > right:
-			right = global_x_pos
+		left = min(global_x_pos,left)
+		right = max(global_x_pos,right)
 	leftmost_point = left
 	rightmost_point = right
 

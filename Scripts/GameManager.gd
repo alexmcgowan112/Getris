@@ -11,13 +11,15 @@ var nextSequence : Array = [0,1,2,3,4,5,6]
 var pieces : Array
 var max_height : float = 0
 
+var windDirection : Vector2
+
 var pieceScene = preload("res://Scenes/Piece.tscn")
-var pieceSpawnHeight : float
 var currentPiece
 
 var lives : int = 3
 
 onready var screenHeight = (get_viewport().size.y/get_viewport().size.x)*640
+onready var pieceSpawnHeight : float = -screenHeight - 64
 
 onready var camera = get_node("Camera2D")
 onready var ui = get_node("UI")
@@ -34,8 +36,13 @@ func _ready():
 	for i in range(7):
 		nextSequence[i] = random.randi_range(0,6)
 	create_sequence()
+	
+	windDirection = Vector2(int((random.randi_range(1,2)-1.5)*2),random.randf_range(0,1))
+	var windParticles = camera.get_node("WindParticles")
+	windParticles.direction = windDirection
+	windParticles.position.x = windDirection.x*-480
+	windParticles.emission_rect_extents.y = screenHeight/2 + 480
 
-	pieceSpawnHeight = -screenHeight - 64
 	next_piece()
 
 func register_buttons():
@@ -48,9 +55,6 @@ func set_highscore_line():
 		$HighscoreLine.queue_free()
 	else:
 		$HighscoreLine.rect_position.y = ui.highscore*-32-4
-		yield(camera.tween, "tween_completed")
-		$HighscoreLine.rect_position.x = -480
-		$HighscoreLine.rect_size.x = 960
 
 
 func _process(delta):
@@ -83,14 +87,10 @@ func find_highest_piece(checkAll: bool = true):
 			var highest : float = 0.0
 			for i in range(numPieces):
 				if !pieces[i].falling:
-					var pieceHeight = pieces[i].find_highest_point()
-					if pieceHeight < highest:
-						highest = pieceHeight
+					highest = min(pieces[i].find_highest_point(),highest)
 			max_height = highest
 		else:
-			var pieceHeight = pieces[numPieces-1].find_highest_point()
-			if pieceHeight < max_height:
-				max_height = pieceHeight
+			max_height = min(pieces[numPieces-1].find_highest_point(),max_height)
 	ui.update_score(max_height)
 	camera.set_target(max_height)
 	screenHeight = (get_viewport().size.y/get_viewport().size.x)*640
@@ -100,8 +100,10 @@ func next_piece():
 	call_deferred("find_highest_piece",false)
 	if currentPiece:
 		pieces.append(currentPiece)
+		if Settings.enable_vibration:
+			camera.set_trauma(0.4)
 
-	var piece = pieceScene.instance().init(pieceSpawnHeight, pieceSequence[sequenceIndex])
+	var piece = pieceScene.instance().init(pieceSpawnHeight, pieceSequence[sequenceIndex], windDirection)
 	currentPiece = piece
 	get_node("Pieces").add_child(piece)
 	piece.connect("piece_placed", self, "next_piece")
@@ -155,3 +157,9 @@ func clear_screen():
 		pauseMenu.disappear()
 		gameOverMenu.disappear()
 		camera.tween.start()
+
+#Pause when game exited (minimized, behind other tab, etc)
+func _notification(what):
+	if what == MainLoop.NOTIFICATION_WM_FOCUS_OUT:
+		get_tree().paused = true
+		pauseMenu.appear()

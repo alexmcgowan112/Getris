@@ -27,4 +27,3 @@ func load_settings():
 		f.close()
 	else:
 		save_settings()
-		
