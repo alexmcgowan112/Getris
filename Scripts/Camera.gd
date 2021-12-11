@@ -31,7 +31,6 @@ func pos_2_zoom_amount(pos):
 	return (pos-64)/-(screenHeight/2)
 
 func set_target(value):
-	screenHeight = (get_viewport().size.y/get_viewport().size.x)*640
 	targetY = min(value,zoom_amount_2_pos(1))
 	if abs(targetY - position.y) >= 16:
 		update_camera()

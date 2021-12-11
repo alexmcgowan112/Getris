@@ -236,7 +236,7 @@ func collide(state):
 		global_position = state.transform.origin
 		applied_force = windDirection*position.y/-32
 		set_deferred("contact_monitor", false)
-		call_deferred("emit_signal","piece_placed")
+		call_deferred("emit_signal", "piece_placed")
 
 
 func drop(state):
