@@ -4,3 +4,7 @@ The concept is inspired by the game Tricky Towers, which I thought would be a re
 
 
 The game can be played [here](https://alexhasswag112.itch.io/getris): 
+
+
+https://user-images.githubusercontent.com/87939634/207952693-fb2ca120-bddd-485d-98b1-79301da4360e.mp4
+
